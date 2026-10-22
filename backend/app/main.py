@@ -419,10 +419,10 @@ app.mount(
 
 @app.get("/")
 def root():
+    # Public endpoint: keep it deliberately minimal. Deployment details belong
+    # in the private health/readiness checks, not on an internet-facing root.
     return {
-        "message": "E-Commerce API",
-        "environment": settings.ENVIRONMENT,
-        "payment_provider": settings.PAYMENT_PROVIDER,
+        "status": "alive"
     }
 
 

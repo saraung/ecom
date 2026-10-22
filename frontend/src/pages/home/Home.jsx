@@ -28,6 +28,11 @@ const EDITORIAL_CARDS = [
   { eyebrow: '03 / The considered', title: 'Made to last', index: 2 },
 ];
 
+// Stable identity for empty query results. `= []` inside a component creates a
+// new array on every render, which makes effects keyed on it run in a loop
+// while React Query is pending or errored.
+const EMPTY = [];
+
 const getProductImage = (product) => product?.images?.[0]?.url || '';
 
 const getHeroHref = (slide) => {
@@ -91,7 +96,7 @@ const Home = () => {
   // Featured products and hero slides are served from the query cache, so
   // returning to Home does not re-download the catalog or re-flash skeletons.
   const {
-    data: featuredProducts = [],
+    data: featuredProducts = EMPTY,
     isPending: loading,
     isError: productError,
     refetch: retryProducts,
@@ -103,7 +108,7 @@ const Home = () => {
         .then((response) => response.data.slice(0, 8)),
   });
 
-  const { data: slides = [] } = useQuery({
+  const { data: slides = EMPTY } = useQuery({
     queryKey: ['content', 'home.hero'],
     queryFn: () => getContentBlocks(['home.hero']).then((blocks) => blocks['home.hero'] || []),
   });
@@ -149,7 +154,8 @@ const Home = () => {
   // Preload both art-directed crops; failed images stay out of the layout.
   useEffect(() => {
     let cancelled = false;
-    setImgOk({});
+    // No-op when already empty so an unstable dependency can never loop.
+    setImgOk((prev) => (Object.keys(prev).length ? {} : prev));
     slides.forEach((slide) => {
       [slide.image_url, slide.mobile_image_url]
         .map((src) => (src || '').trim())

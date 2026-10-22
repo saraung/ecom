@@ -79,10 +79,7 @@ class Order(SQLModel, table=True):
     
     # Coupon
     coupon_code: str | None = None
-    
-    # Coupon
-    coupon_code: str | None = None
-    
+
     # Payment
     payment_method: str | None = None  # 'cod' or 'online' (choice made at checkout)
     cod_fee: Decimal = Field(default=0, max_digits=12, decimal_places=2)

@@ -229,7 +229,25 @@ Optional: `NGROK_HOST` is no longer used; the dev server runs without proxy or
 host-header exceptions.
 
 > **Never put a secret in a `VITE_*` variable.** Everything prefixed `VITE_` is
-> embedded in the public bundle. Only publishable keys belong there.
+> embedded in the public bundle. Only publishable keys belong there. On Vercel,
+> store these as **Config** variables, not **Secret**: both are inlined at build
+> time, but Config stays readable/editable while Secret is write-only. Reserve
+> Secret for real credentials on the backend project.
+
+### Deploying a SPA to Vercel
+
+1. In the Vercel project for `frontend/` or `admin/`, set
+   `VITE_API_URL` to the absolute backend origin, e.g.
+   `https://api.example.com/api/v1`, for the **Production** environment.
+2. Add that SPA's public origin to the backend `CORS_ORIGINS`.
+3. Redeploy. Env changes only apply to new deployments; Vite bakes `VITE_*`
+   into the bundle, so the running deployment keeps the old value.
+4. Keep the project's Root Directory at `frontend`/`admin` so its
+   `vercel.json` is used. The included rewrite sends unknown paths to
+   `index.html`, which client-side routes (`/products`, `/orders/123`) need on
+   refresh and direct navigation.
+5. `vite.config.js` now refuses to build for production when `VITE_API_URL` is
+   missing, instead of silently shipping the `localhost:8001` fallback.
 
 ---
 

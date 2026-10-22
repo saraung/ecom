@@ -1,7 +1,7 @@
 // src/pages/auth/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { GoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { Sparkles, Truck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { authAPI } from '../../api/auth';
 import { useAuth } from '../../hooks/useAuth';
@@ -30,7 +30,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [oneTapDone, setOneTapDone] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,7 +107,6 @@ const Login = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
-    setOneTapDone(true); // latch: never re-prompt while auth/redirect settles
     setError('');
     setSuccessMessage('');
 
@@ -134,42 +132,6 @@ const Login = () => {
   const handleGoogleError = () => {
     setError('Google login failed. Please try again.');
   };
-
-  // One Tap — "Continue as ..." prompt for logged-out users.
-  // Reuses the same ID-token → /auth/google flow as the Google button above.
-  useGoogleOneTapLogin({
-    onSuccess: handleGoogleSuccess,
-
-    // Silent: dismissal / opt-out must not show an error banner
-    onError: () => {},
-
-    // Prompt moments are normal traffic, not problems: a `skipped: tap_outside`
-    // just means the user touched the page before the prompt appeared, and GSI's
-    // own FedCM/AbortError console noise is browser-side. Use console.debug so
-    // these stay out of the default-visible console.
-    promptMomentNotification: (notification) => {
-      const type = notification?.getMomentType?.();
-
-      if (type === 'skipped') {
-        console.debug(
-          '👤 One Tap skipped:',
-          notification?.getSkippedReason?.()
-        );
-      } else if (type === 'dismissed') {
-        console.debug(
-          '👤 One Tap dismissed:',
-          notification?.getDismissedReason?.()
-        );
-      } else if (type !== 'display') {
-        console.debug('👤 One Tap moment:', type);
-      }
-    },
-
-    cancel_on_tap_outside: true,
-    use_fedcm_for_prompt: true,
-    auto_select: false,
-    disabled: isAuthenticated || loading || oneTapDone,
-  });
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -384,6 +346,13 @@ const Login = () => {
 
                   Using 400px makes the Google button fill the
                   available desktop login width.
+                */}
+                {/*
+                  Keep exactly one Google Identity initializer on this page.
+                  Adding useGoogleOneTapLogin() here too calls
+                  google.accounts.id.initialize() a second time, and GSI only
+                  honours the last configuration. That produced the console
+                  warning and a second, failing FedCM prompt.
                 */}
                 <div className="w-full flex justify-center overflow-hidden">
                   <GoogleLogin

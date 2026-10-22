@@ -1,0 +1,234 @@
+/* ================================================================
+   ec-admin — SINGLE THEME FILE  (light + dark)
+   ----------------------------------------------------------------
+   ▶ Change ANY color of the ENTIRE admin panel from here.
+   Every component uses these variables, so edit this one file
+   to completely re-skin the whole UI (brand colors, contrast…).
+
+   Light mode lives in :root, dark mode lives in .dark (applied to
+   <html class="dark"> by the theme switcher / system preference).
+   ================================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* Class-based dark mode: .dark on <html> = dark palette everywhere */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ----------------------------------------------------------------
+   LIGHT MODE  (default) — cream / black / white
+   ---------------------------------------------------------------- */
+:root {
+  /* Surfaces */
+  --background: #faf9f6;            /* warm cream page background             */
+  --card: #ffffff;                  /* pure white cards / sidebar / header    */
+  --foreground: #1a1a1a;            /* near‑black primary text                */
+  --muted: #f1f0ec;                 /* soft warm grey hover fills / panels    */
+  --muted-foreground: #5c5c5c;      /* secondary / helper text                */
+
+  /* Borders */
+  --border: #e0ddd5;                /* warm light grey borders                */
+  --input: #ccc8bf;                 /* input borders                          */
+
+  /* Brand / primary */
+  --primary: #111111;               /* black buttons, links                   */
+  --primary-hover: #2b2b2b;         /* slightly lighter black on hover        */
+  --primary-foreground: #ffffff;    /* white text on black bg                 */
+  --primary-soft: #f0efeb;          /* very light warm grey accent bg         */
+  --primary-soft-foreground: #1a1a1a; /* dark text on soft bg                 */
+
+  /* Status */
+  --success: #16a34a;
+  --warning: #d97706;
+  --destructive: #dc2626;
+
+  /* Focus ring */
+  --ring: #111111;
+}
+
+/* ----------------------------------------------------------------
+   DARK MODE  (<html class="dark">) — charcoal / slate
+   ---------------------------------------------------------------- */
+.dark {
+  --background: #1a1a1a;            /* deep charcoal page background           */
+  --card: #242424;                  /* slightly lighter charcoal for cards    */
+  --foreground: #f5f5f5;            /* near‑white primary text                */
+  --muted: #2c2c2c;                 /* dark grey hover fills / panels         */
+  --muted-foreground: #a0a0a0;      /* muted helper text                      */
+
+  --border: #3a3a3a;                /* dark grey borders                      */
+  --input: #4a4a4a;                 /* input borders                          */
+
+  --primary: #f0f0f0;               /* light grey / white accent              */
+  --primary-hover: #d4d4d4;
+  --primary-foreground: #111111;    /* black text on light accent             */
+  --primary-soft: #2c2c2c;          /* dark grey soft accent panels           */
+  --primary-soft-foreground: #e0e0e0;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --destructive: #ef4444;
+
+  --ring: #e0e0e0;
+}
+
+/* Map the CSS variables to Tailwind utilities.
+   `inline` means utilities like bg-background, text-foreground,
+   border-border, bg-primary… all resolve to the vars above and
+   react instantly when <html class="dark"> is toggled. */
+@theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+}
+
+/* ----------------------------------------------------------------
+   Base
+   ---------------------------------------------------------------- */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Native <select>/<option> dropdowns follow the theme.
+     Without explicit colors, some browsers render the open popup
+     white-on-white (dark mode) or black-on-black (light mode) and the
+     options become invisible. */
+  select,
+  optgroup,
+  option {
+    background-color: var(--card);
+    color: var(--foreground);
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Scrollbars that follow the theme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* ----------------------------------------------------------------
+   Reusable component classes (theme-aware)
+   ---------------------------------------------------------------- */
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary-hover transition-colors duration-200;
+  }
+  .btn-danger {
+    @apply bg-destructive text-white px-4 py-2 rounded-lg hover:bg-destructive/90 transition-colors duration-200;
+  }
+  .btn-success {
+    @apply bg-success text-white px-4 py-2 rounded-lg hover:bg-success/90 transition-colors duration-200;
+  }
+  .btn-outline {
+    @apply border border-border text-foreground px-4 py-2 rounded-lg hover:bg-muted transition-colors duration-200;
+  }
+  .input-field {
+    @apply w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+  .card {
+    @apply bg-card rounded-xl shadow-sm p-6;
+  }
+  .badge {
+    @apply px-2 py-1 text-xs font-medium rounded-full;
+  }
+  .badge-success {
+    @apply bg-success/15 text-success;
+  }
+  .badge-warning {
+    @apply bg-warning/15 text-warning;
+  }
+  .badge-danger {
+    @apply bg-destructive/15 text-destructive;
+  }
+  .badge-info {
+    @apply bg-primary-soft text-primary-soft-foreground;
+  }
+}
+
+/* ----------------------------------------------------------------
+   Ranked-bar fill animation (Top Products widget).
+   The bar divs render at their final inline width on first paint, so a
+   transition alone never fires — this mount animation sweeps each bar
+   from 0 to its natural width on load and on every dashboard refresh
+   (the PageSkeleton remounts the tree, replaying it for free).
+   ---------------------------------------------------------------- */
+@keyframes bar-fill {
+  from {
+    width: 0;
+  }
+}
+.animate-bar-fill {
+  animation: bar-fill 0.7s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-bar-fill {
+    animation: none;
+  }
+}
+
+/* Smooth color switch when the theme changes.
+   Scoped to the main surfaces (page bg, cards, sidebar, header, borders,
+   primary + secondary text) instead of animating every element. Fading the
+   whole tree made toggling lag — especially rapid light ↔ dark flips. */
+html.theme-transition body,
+html.theme-transition header,
+html.theme-transition footer,
+html.theme-transition aside,
+html.theme-transition .bg-background,
+html.theme-transition .bg-card,
+html.theme-transition .bg-muted,
+html.theme-transition .bg-sidebar,
+html.theme-transition .text-foreground,
+html.theme-transition .text-muted-foreground,
+html.theme-transition .border-border {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease !important;
+}

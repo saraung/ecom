@@ -1,0 +1,57 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.vite/
+.eslintcache
+*.tsbuildinfo
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.eggs/
+*.egg-info/
+build/
+
+# Test / coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.db
+*.sqlite
+*.sqlite3
+
+# Build / runtime data
+chroma_db/
+uploads/
+private_storage/
+logs/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/

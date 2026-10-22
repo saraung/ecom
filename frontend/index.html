@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf9f6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a1a" />
+    <title>E-Shop </title>
+    <script>
+      // No-flash theme boot: runs before React paints
+      try {
+        var s = localStorage.getItem('ec-theme'), t = s === 'light' || s === 'dark' || s === 'system' ? s : null;
+        if (!t) {
+          try {
+            var legacy = JSON.parse(localStorage.getItem('preferences') || '{}');
+            if (legacy && (legacy.theme === 'light' || legacy.theme === 'dark' || legacy.theme === 'system')) t = legacy.theme;
+          } catch (e) {}
+        }
+        var r = t === 'dark' ? 'dark' : t === 'light' ? 'light'
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (r === 'dark') document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = r;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

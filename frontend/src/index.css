@@ -1,0 +1,265 @@
+/* THEME lives in ./styles/theme.css — edit colors there to re-skin the UI.
+   Light mode: :root | Dark mode: .dark on <html>. */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+@import "./styles/theme.css";
+
+/* Class-based dark mode: .dark on <html> = dark palette everywhere */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Mobile-first base styles */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /* Touch targets: opt-in via .touch-target. A blanket rule on every
+     <a>/<button> stretched inline text links (e.g. "Forgot password?")
+     and fixed-size icon buttons into 44×44 boxes, breaking text flow and
+     distorting circular controls. CTAs already reach this via padding. */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Reusable theme-aware component classes */
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary-hover transition-colors duration-200;
+  }
+  .btn-accent {
+    @apply bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors duration-200;
+  }
+  .btn-danger {
+    @apply bg-destructive text-white px-4 py-2 rounded-lg hover:bg-destructive/90 transition-colors duration-200;
+  }
+  .btn-success {
+    @apply bg-success text-white px-4 py-2 rounded-lg hover:bg-success/90 transition-colors duration-200;
+  }
+  .btn-outline {
+    @apply border border-border text-foreground px-4 py-2 rounded-lg hover:bg-muted transition-colors duration-200;
+  }
+  .input-field {
+    @apply w-full px-3 py-2 border border-input rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+  }
+  .card {
+    @apply bg-card text-foreground border border-border rounded-xl shadow-sm p-6;
+  }
+  .badge {
+    @apply px-2 py-1 text-xs font-medium rounded-full;
+  }
+  .badge-success {
+    @apply bg-success/15 text-success;
+  }
+  .badge-warning {
+    @apply bg-warning/15 text-warning;
+  }
+  .badge-danger {
+    @apply bg-destructive/15 text-destructive;
+  }
+  .badge-info {
+    @apply bg-primary-soft text-primary-soft-foreground;
+  }
+  .badge-accent {
+    @apply bg-accent-soft text-accent-soft-foreground;
+  }
+  .badge-neutral {
+    @apply bg-neutral-soft text-neutral-soft-foreground;
+  }
+
+  /* Soft tinted fills + matching text (replaces bg-*-100 / text-*-700) */
+  .tint-accent {
+    @apply bg-accent-soft text-accent-soft-foreground;
+  }
+  .tint-success {
+    @apply bg-success-soft text-success-soft-foreground;
+  }
+  .tint-warning {
+    @apply bg-warning-soft text-warning-soft-foreground;
+  }
+  .tint-info {
+    @apply bg-info-soft text-info-soft-foreground;
+  }
+  .tint-danger {
+    @apply bg-destructive-soft text-destructive-soft-foreground;
+  }
+  .tint-neutral {
+    @apply bg-neutral-soft text-neutral-soft-foreground;
+  }
+
+  /* Alert boxes (replaces bg-destructive/10 border-red-400 text-red-700) */
+  .alert-success {
+    @apply bg-success-soft/40 border border-success/40 text-success-soft-foreground px-4 py-3 rounded-lg;
+  }
+  .alert-danger {
+    @apply bg-destructive-soft/40 border border-destructive/40 text-destructive-soft-foreground px-4 py-3 rounded-lg;
+  }
+  .alert-warning {
+    @apply bg-warning-soft/40 border border-warning/40 text-warning-soft-foreground px-4 py-3 rounded-lg;
+  }
+  .alert-info {
+    @apply bg-info-soft/40 border border-info/40 text-info-soft-foreground px-4 py-3 rounded-lg;
+  }
+
+  /* Unread dot (replaces bg-blue-600) */
+  .dot-accent {
+    @apply bg-accent;
+  }
+}
+
+/* Smooth color switch when the theme changes */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    fill 0.25s ease,
+    stroke 0.25s ease !important;
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out forwards;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Theme-aware scrollbar + selection + focus */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+/* Custom utilities for xs breakpoint */
+@layer utilities {
+  .xs\:block {
+    display: none;
+  }
+  
+  @media (min-width: 480px) {
+    .xs\:block {
+      display: block;
+    }
+  }
+}

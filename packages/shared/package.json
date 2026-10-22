@@ -1,0 +1,12 @@
+{
+  "name": "@ecom/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Framework-agnostic code shared by the storefront and the admin panel (HTTP session handling and regionalised formatting).",
+  "exports": {
+    "./session": "./src/session.js",
+    "./http": "./src/http.js",
+    "./format": "./src/format.js"
+  }
+}

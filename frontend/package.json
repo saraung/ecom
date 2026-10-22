@@ -1,0 +1,40 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "node --test src/utils/*.test.js",
+    "lint:release": "oxlint src/contexts/CartContext.jsx src/pages/product/ProductList.jsx src/components/common/SearchSuggestions.jsx src/components/common/Chatbot.jsx src/api/chat.js src/utils/guestCartMerge.js src/utils/catalog.js src/utils/chatSession.js src/pages/customer/OrderDetail.jsx src/components/orders/OrderReturns.jsx src/api/returns.js src/utils/returns.js src/utils/*.test.js",
+    "check:release": "npm run test && npm run lint:release && npm run build"
+  },
+  "engines": { "node": ">=24.18.1 <25", "npm": ">=11 <12" },
+  "dependencies": {
+    "@ecom/shared": "file:../packages/shared",
+    "@react-oauth/google": "^0.13.5",
+    "@stripe/stripe-js": "^9.16.0",
+    "@tanstack/react-query": "^5.101.4",
+    "axios": "^1.20.0",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^1.35.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hot-toast": "^2.6.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.18.2",
+    "react-to-print": "^3.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "oxlint": "^1.79.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.2"
+  }
+}

@@ -1,0 +1,109 @@
+/* THEME — single file controlling ALL UI colors.
+   Light: :root | Dark: .dark on <html>.
+   Components must use semantic tokens (bg-primary, text-success,
+   badge-danger, alert-warning, bg-accent...) — never raw palette
+   classes like bg-blue-600 or bg-red-100. */
+
+:root {
+  --background: #faf9f6;
+  --card: #ffffff;
+  --foreground: #1a1a1a;
+  --muted: #f1f0ec;
+  --muted-foreground: #5c5c5c;
+  --border: #e0ddd5;
+  --input: #ccc8bf;
+  --primary: #111111;
+  --primary-hover: #2b2b2b;
+  --primary-foreground: #ffffff;
+  --primary-soft: #f0efeb;
+  --primary-soft-foreground: #1a1a1a;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: #dbeafe;
+  --accent-soft-foreground: #1d4ed8;
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --success-soft-foreground: #15803d;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --warning-soft-foreground: #b45309;
+  --info: #4f46e5;
+  --info-soft: #e0e7ff;
+  --info-soft-foreground: #4338ca;
+  --destructive: #dc2626;
+  --destructive-soft: #fee2e2;
+  --destructive-soft-foreground: #b91c1c;
+  --neutral-soft: #f3f4f6;
+  --neutral-soft-foreground: #4b5563;
+  --ring: #111111;
+}
+
+.dark {
+  --background: #1a1a1a;
+  --card: #242424;
+  --foreground: #f5f5f5;
+  --muted: #2c2c2c;
+  --muted-foreground: #a0a0a0;
+  --border: #3a3a3a;
+  --input: #4a4a4a;
+  --primary: #f0f0f0;
+  --primary-hover: #d4d4d4;
+  --primary-foreground: #111111;
+  --primary-soft: #2c2c2c;
+  --primary-soft-foreground: #e0e0e0;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-soft: #1e3a8a;
+  --accent-soft-foreground: #bfdbfe;
+  --success: #22c55e;
+  --success-soft: #14532d;
+  --success-soft-foreground: #bbf7d0;
+  --warning: #f59e0b;
+  --warning-soft: #78350f;
+  --warning-soft-foreground: #fde68a;
+  --info: #818cf8;
+  --info-soft: #312e81;
+  --info-soft-foreground: #c7d2fe;
+  --destructive: #ef4444;
+  --destructive-soft: #7f1d1d;
+  --destructive-soft-foreground: #fecaca;
+  --neutral-soft: #374151;
+  --neutral-soft-foreground: #d1d5db;
+  --ring: #e0e0e0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-soft-foreground: var(--info-soft-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-soft-foreground: var(--neutral-soft-foreground);
+  --color-ring: var(--ring);
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+}

@@ -1,0 +1,56 @@
+[project]
+name = "com"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Saraung Babu", email = "saraung.babu@yatnam.com" }
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "alembic>=1.19.1",
+    "apscheduler>=3.11.3",
+    "bcrypt==4.0.1",
+    "chromadb>=1.5.9",
+    "cloudinary>=1.46.3",
+    "fastapi>=0.141.1",
+    "fastembed>=0.8.0",
+    "google-auth>=2.56.3",
+    "google-genai>=2.21.0",
+    "groq>=1.7.0",
+    "httpx>=0.28.1",
+    "huggingface-hub>=1.30.0",
+    "mcp[cli]>=2.3.0",
+    "onnxruntime>=1.29.0",
+    "openai>=3.8.0",
+    "passlib>=1.7.4",
+    "psycopg2-binary>=2.9.12",
+    "pydantic-settings>=2.15.0",
+    "pydantic[email]>=2.13.4",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.32",
+    "razorpay>=2.0.1",
+    "redis>=5.0",
+    "requests>=2.34.2",
+    "sendgrid>=6.12.5",
+    "slowapi>=0.1.10",
+    "sqlmodel>=0.0.39",
+    "stripe>=15.6.1",
+    "uvicorn>=0.52.1",
+]
+
+[dependency-groups]
+test = ["pytest==9.1.1"]
+
+[tool.uv]
+package=false
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+# `uv run pytest` from backend/ must resolve `app.*` without an editable
+# install, and must not collect app/mcp/test_client.py (a manual MCP probe).
+testpaths = ["tests"]
+pythonpath = ["."]

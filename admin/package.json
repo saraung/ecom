@@ -1,0 +1,45 @@
+{
+  "name": "ec-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "node --test src/utils/*.test.js",
+    "lint:release": "oxlint src/context/AuthContext.jsx src/api/orders.js src/pages/Orders/OrderDetail.jsx src/pages/Reports/Reports.jsx src/pages/Shipping/ShiprocketSimulator.jsx src/utils/reportLoader.js src/routes/AppRoutes.jsx src/components/layout/Sidebar.jsx src/components/returns/ReturnEvidence.jsx src/pages/Returns/ReturnList.jsx src/pages/Returns/ReturnDetail.jsx src/pages/Refunds/Refunds.jsx src/api/returns.js src/utils/returns.js src/utils/permissions.js src/utils/*.test.js",
+    "check:release": "npm run test && npm run lint:release && npm run build"
+  },
+  "engines": {
+    "node": ">=24.18.1 <25",
+    "npm": ">=11 <12"
+  },
+  "dependencies": {
+    "@ecom/shared": "file:../packages/shared",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-query": "^5.101.4",
+    "axios": "^1.19.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^1.33.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hot-toast": "^2.6.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.18.2",
+    "recharts": "^3.10.1",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "autoprefixer": "^10.5.4",
+    "oxlint": "^1.75.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.0"
+  }
+}

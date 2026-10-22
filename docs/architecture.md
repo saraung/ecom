@@ -23,7 +23,7 @@ applications consume it over HTTP.
                     └───────────────┬──┘   └───┬────────────────┘
                                     │          │
                          /api/v1    │          │    /api/v1
-                         (Vite dev proxy → localhost:8001)
+                         (direct → http://localhost:8001)
                                     │          │
                         ┌───────────▼──────────▼───────────┐
                         │        backend/  :8001            │
@@ -187,22 +187,18 @@ own transaction boundaries (`session.commit()` lives in the route or service).
 
 ## 4. Application Communication
 
-### 4.1 Development: one origin per app
+### 4.1 Development: direct API origin
 
-Both Vite configs proxy `/api` to the backend so the page and the API share the
-browser origin:
+Both SPAs call the backend directly; Vite does **not** proxy `/api` any more.
 
-| App | Page origin | Proxy target | API base used by code |
+| App | Page origin | API base (`VITE_API_URL`) | Backend must allow |
 |---|---|---|---|
-| `frontend/` | `http://localhost:5175` | `http://localhost:8001` | `/api/v1` |
-| `admin/` | `http://localhost:3001` | `http://localhost:8001` | `/api/v1` |
+| `frontend/` | `http://localhost:5175` | `http://localhost:8001/api/v1` | `http://localhost:5175` |
+| `admin/` | `http://localhost:3001` | `http://localhost:8001/api/v1` | `http://localhost:3001` |
 
-This is not cosmetic. When either app is exposed through an ngrok tunnel
-(`https://*.ngrok-free.dev`), an absolute `http://localhost:8001` call is blocked
-by **Chrome Private Network Access** before CORS is ever evaluated. Routing
-through the proxy avoids the block entirely, which is why
-`VITE_API_URL=/api/v1` is relative. `server.allowedHosts: true` and conditional
-`wss` HMR are configured for the same tunnel workflow.
+Set `CORS_ORIGINS=http://localhost:5175,http://localhost:3001` in
+`backend/.env`. Bearer tokens travel in the `Authorization` header (no cookies),
+so no credentialed-request setup is needed.
 
 ### 4.2 Production
 

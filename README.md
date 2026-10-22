@@ -21,8 +21,9 @@ ecom/
 | `frontend/` | React 19 · Vite · TanStack Query · Tailwind | `5175` | Product listings, search, cart, checkout, orders, profile |
 | `packages/shared/` | ESM, no build step | — | Session refresh, axios client factory, regionalised formatters |
 
-Both frontends call `/api/v1` and proxy `/api` to `http://localhost:8001` via
-their Vite dev server, so all three run on one origin in development.
+Both frontends call the backend directly at `http://localhost:8001/api/v1`
+(configured via `VITE_API_URL`); the backend allows the two dev origins through
+`CORS_ORIGINS`.
 
 ## Setup
 

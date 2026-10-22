@@ -402,7 +402,7 @@ Environment (`.env`):
 
 | Variable | Purpose |
 |---|---|
-| `VITE_API_URL` | `/api/v1` in dev; absolute API origin for deployed builds |
+| `VITE_API_URL` | `http://localhost:8001/api/v1` in dev; absolute API origin for deployed builds |
 | `VITE_GOOGLE_CLIENT_ID` | Google sign-in button |
 | `VITE_RAZORPAY_KEY_ID` | Razorpay checkout widget |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe Payment Element |

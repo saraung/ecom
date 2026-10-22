@@ -1,5 +1,6 @@
 import api from '../api/axios';
 import { refreshSession, hardLogout } from '../api/session';
+import { WS_ORIGIN } from '../api/config';
 
 // ============================================================
 // Normalize a backend-provided link so it can be handed to
@@ -167,12 +168,9 @@ class NotificationService {
 
   openSocket(token, userId) {
     const generation = ++this.generation;
-    const protocol =
-      window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
     const wsUrl =
-      `${protocol}//${window.location.host}` +
-      `/api/v1/notifications/ws?token=${encodeURIComponent(token)}`;
+      `${WS_ORIGIN}/api/v1/notifications/ws?token=${encodeURIComponent(token)}`;
 
     let socket;
     try {

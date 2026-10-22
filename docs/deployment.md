@@ -213,7 +213,7 @@ rebuild).
 
 | Variable | Dev | Production |
 |---|---|---|
-| `VITE_API_URL` | `/api/v1` | absolute API origin **or** `/api/v1` behind a proxy |
+| `VITE_API_URL` | `http://localhost:8001/api/v1` | absolute API origin (no proxy required) |
 | `VITE_GOOGLE_CLIENT_ID` | client id | same |
 | `VITE_RAZORPAY_KEY_ID` | test key | live key matching backend |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | `pk_test_…` | `pk_live_…` matching backend |
@@ -222,10 +222,11 @@ rebuild).
 
 | Variable | Notes |
 |---|---|
-| `VITE_API_URL` | `/api/v1` (forced in dev by `api/client.js`) |
+| `VITE_API_URL` | `http://localhost:8001/api/v1` (direct; no Vite proxy) |
 | `VITE_GOOGLE_CLIENT_ID` | same client id |
 
-Optional: `NGROK_HOST` (dev only) configures wss HMR and `allowedHosts`.
+Optional: `NGROK_HOST` is no longer used; the dev server runs without proxy or
+host-header exceptions.
 
 > **Never put a secret in a `VITE_*` variable.** Everything prefixed `VITE_` is
 > embedded in the public bundle. Only publishable keys belong there.
@@ -573,9 +574,9 @@ cd admin && npm install && npm run dev     # :3001
 cd frontend && npm install && npm run dev  # :5175
 ```
 
-Both frontends proxy `/api` → `localhost:8001`. If you expose a dev server
-through ngrok, set `NGROK_HOST` so HMR uses `wss`, and keep `VITE_API_URL`
-relative so Chrome's Private Network Access never blocks the API hop.
+Both frontends call the backend directly at `http://localhost:8001/api/v1`.
+`backend/.env` must list both dev origins in
+`CORS_ORIGINS=http://localhost:5175,http://localhost:3001`.
 
 ---
 

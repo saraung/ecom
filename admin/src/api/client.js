@@ -3,13 +3,12 @@ import axios from 'axios';
 import { createApiClient } from '@ecom/shared/http';
 import { createSession } from '@ecom/shared/session';
 
-// Keep local development same-origin so every admin request uses the Vite
-// proxy (localhost:3001 -> localhost:8001). This also prevents an old or
-// machine-specific VITE_API_URL from bypassing the proxy and creating a
-// second browser origin with a confusing authentication state.
-export const API_BASE_URL = import.meta.env.DEV
-  ? '/api/v1'
-  : (import.meta.env.VITE_API_URL || '/api/v1');
+// Absolute API origin. Dev defaults to the local backend; there is no Vite
+// proxy any more. Production builds must set VITE_API_URL at build time,
+// e.g. https://api.example.com/api/v1.
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1'
+).replace(/\/+$/, '');
 
 // Single-flight refresh + logout are shared with the storefront
 // (@ecom/shared/session); only the admin redirect/cache-clearing differ.

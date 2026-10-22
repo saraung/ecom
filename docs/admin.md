@@ -99,8 +99,10 @@ revoke the session.
 Admin-specific options: redirect to `/login?reason=session_expired` with
 `location.replace`, a re-entry guard, and clearing the cached `user` key.
 
-`API_BASE_URL` is forced to `/api/v1` in dev regardless of `VITE_API_URL`, so an
-old absolute URL can never bypass the proxy and create a second browser origin.
+`API_BASE_URL` comes from `VITE_API_URL` (default
+`http://localhost:8001/api/v1`). There is no Vite proxy: the admin talks to the
+backend origin directly, so `CORS_ORIGINS` must include
+`http://localhost:3001`.
 
 ### 3.3 Logout
 
@@ -544,11 +546,11 @@ does not need it at runtime.
 
 | Variable | Purpose |
 |---|---|
-| `VITE_API_URL` | `/api/v1` in dev (forced); absolute API origin for deployed builds |
+| `VITE_API_URL` | `http://localhost:8001/api/v1` in dev; absolute API origin for deployed builds |
 | `VITE_GOOGLE_CLIENT_ID` | Google sign-in |
 
-`NGROK_HOST` is read by `vite.config.js` to configure `wss` HMR and `allowedHosts`
-when exposing the dev server through a tunnel.
+The dev server calls the backend directly (no Vite proxy), so
+`CORS_ORIGINS` must include `http://localhost:3001`.
 
 ---
 

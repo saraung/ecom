@@ -7,9 +7,10 @@
 // from it. Only the storefront-specific redirect is configured here.
 
 import { createSession } from '@ecom/shared/session';
+import { API_BASE_URL } from './config';
 
 const session = createSession({
-  refreshUrl: '/api/v1/auth/refresh',
+  refreshUrl: `${API_BASE_URL}/auth/refresh`,
   logoutUrl: '/login',
   replace: false,
   guardReentry: true,

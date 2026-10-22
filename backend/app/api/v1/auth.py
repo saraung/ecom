@@ -1,3 +1,4 @@
+import os
 import uuid
 from datetime import datetime, timedelta
 
@@ -24,13 +25,14 @@ from app.core.security import (
 )
 from app.services import otp_service
 from app.services.email_service import email_service
-from app.services.email_outbox import enqueue_email
+from app.services.email_outbox import enqueue_email, deliver_pending_emails
 from app.services.google_auth_service import google_auth_service
 from app.services.otp_service import create_otp,verify_otp,increment_otp_attempts,get_otp_attempts
 from app.core.config import settings
 from app.models.user import User
 from app.models.otp import OTP
 from app.models.password_reset import PasswordResetToken
+from app.models.email_outbox import EmailOutbox
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -653,6 +655,14 @@ def forgot_password(
     session.query(PasswordResetToken).filter(
         PasswordResetToken.user_id == user.id
     ).delete()
+
+    # Supersede any reset mail that is still queued. Its token was just
+    # invalidated above, so sending it later would only deliver a dead link.
+    session.query(EmailOutbox).filter(
+        EmailOutbox.to_email == user.email,
+        EmailOutbox.event_key.like("password-reset:%"),
+        EmailOutbox.sent_at.is_(None),
+    ).delete(synchronize_session=False)
     
     # Generate reset token (valid for 1 hour)
     token = generate_reset_token()
@@ -666,10 +676,17 @@ def forgot_password(
         used=False,
     )
     session.add(reset_token)
-    enqueue_email(session, f"password-reset:{reset_token.id}", "send_password_reset_email",
+    outbox = enqueue_email(session, f"password-reset:{reset_token.id}", "send_password_reset_email",
                   user_email=user.email, user_name=user.full_name or user.username,
                   reset_token=token, expires_at=expires_at)
     session.commit()
+
+    # On serverless hosts the in-process scheduler is not guaranteed to run, so
+    # try the send in-request as well. The row stays in the outbox if the
+    # provider fails. Local development keeps the normal 30s scheduler path
+    # (and tests never touch the network).
+    if os.getenv("VERCEL") or settings.ENVIRONMENT.lower() == "production":
+        deliver_pending_emails(session, limit=1, event_key=outbox.event_key)
     
     print(f"✅ Password reset token generated for {user.email}")
     return {"message": "If an account with this email exists, a reset link has been sent."}

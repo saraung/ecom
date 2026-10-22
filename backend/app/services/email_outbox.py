@@ -33,20 +33,26 @@ def enqueue_order_email(session, order, event, *, event_id=None):
                          f"send_{event}", order, order.user)
 
 
-def deliver_pending_emails(session: Session, *, limit=25, now=None, sender=None):
+def deliver_pending_emails(session: Session, *, limit=25, now=None, sender=None, event_key=None):
     """Lock one row through send+ack, so multiple app workers cannot race it.
 
     A crash after provider acceptance can repeat a message; SMTP/SendGrid do
     not supply an exactly-once send API. Unsent rows remain durable indefinitely.
+
+    ``event_key`` limits the drain to one queued message, which lets a request
+    try the send immediately without touching unrelated mail.
     """
     now = now or datetime.now(timezone.utc)
     sender = sender or email_service._send_email
     sent = failed = 0
     for _ in range(limit):
-        row = session.exec(select(EmailOutbox).where(
+        stmt = select(EmailOutbox).where(
             EmailOutbox.sent_at.is_(None), EmailOutbox.next_attempt_at <= now,
             (EmailOutbox.expires_at.is_(None) | (EmailOutbox.expires_at > now)),
-        ).order_by(EmailOutbox.created_at, EmailOutbox.id)
+        )
+        if event_key is not None:
+            stmt = stmt.where(EmailOutbox.event_key == event_key)
+        row = session.exec(stmt.order_by(EmailOutbox.created_at, EmailOutbox.id)
             .with_for_update(skip_locked=True).execution_options(populate_existing=True)).first()
         if row is None:
             session.rollback()

@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from sqlalchemy import text as sql_text
 from sqlmodel import Session
 from starlette.datastructures import MutableHeaders
 from starlette.responses import JSONResponse
@@ -45,53 +44,17 @@ def _sweep_expired_orders_once() -> None:
         print(f"❌ Order-expiry sweep failed: {e}")
 
 
-#: Arbitrary but stable int64 key for the scheduler advisory lock.
-_SCHEDULER_LOCK_KEY = 0x45434F4D  # "ECOM"
-
-
-def _run_as_scheduler_leader(job, label: str):
-    """
-    Run an APScheduler job on exactly one process.
-
-    BackgroundScheduler lives inside the API process, so every uvicorn worker
-    starts its own copy. The jobs are individually idempotent, but N workers
-    still mean N scans (and N provider calls). A PostgreSQL transaction-scoped
-    advisory lock makes the job a cluster-wide singleton per tick: the first
-    worker to acquire it runs the job, everyone else skips immediately. The
-    lock is released when the session commits/closes, so a crashed leader does
-    not block the next tick.
-
-    SQLite (tests/local) has no advisory locks and runs a single process, so
-    the job runs directly.
-    """
-    if settings.DATABASE_URL.startswith("sqlite"):
-        return job()
-
-    try:
-        with Session(engine) as lock_session:
-            acquired = lock_session.execute(
-                sql_text("SELECT pg_try_advisory_xact_lock(:key)"),
-                {"key": _SCHEDULER_LOCK_KEY},
-            ).scalar()
-
-            if not acquired:
-                return None
-
-            return job()
-
-    except Exception as exc:
-        # A transient DB outage must not kill the scheduler thread; the next
-        # tick retries. Never let this raise into APScheduler.
-        print(f"⚠️ Scheduler lock for {label} failed: {exc}")
-        return None
-
-
+# Both job bodies take their own row locks (email: FOR UPDATE SKIP LOCKED,
+# order expiry: FOR UPDATE plus a state recheck), so multiple workers can run
+# them safely. Do NOT reintroduce a cluster-wide advisory lock around provider
+# I/O: on a serverless host the process can be frozen mid-send, leaving the
+# transaction open and blocking every other scheduler tick indefinitely.
 def _deliver_email_outbox():
-    _run_as_scheduler_leader(_deliver_email_outbox_once, "email outbox")
+    _deliver_email_outbox_once()
 
 
 def _sweep_expired_orders():
-    _run_as_scheduler_leader(_sweep_expired_orders_once, "order expiry")
+    _sweep_expired_orders_once()
 
 
 _scheduler = BackgroundScheduler()

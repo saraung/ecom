@@ -113,6 +113,24 @@ def test_expired_token_mail_is_not_delivered(db):
     sender.assert_not_called()
 
 
+def test_delivery_can_target_one_event_key(db):
+    s, user, _, _ = db
+    first = enqueue_email(s, "targeted:first", "send_welcome_email", user)
+    second = enqueue_email(s, "targeted:second", "send_welcome_email", user)
+    s.commit()
+    sender = Mock(return_value=True)
+    now = datetime.now(timezone.utc) + timedelta(seconds=1)
+
+    result = deliver_pending_emails(s, now=now, sender=sender, event_key=second.event_key)
+
+    assert result == {"sent": 1, "failed": 0}
+    assert sender.call_count == 1
+    first_row = s.exec(select(EmailOutbox).where(EmailOutbox.event_key == first.event_key)).one()
+    second_row = s.exec(select(EmailOutbox).where(EmailOutbox.event_key == second.event_key)).one()
+    assert first_row.sent_at is None
+    assert second_row.sent_at is not None
+
+
 def test_refund_completion_replay_queues_once(db):
     s, _, order, _ = db
     order.refund_id = "rfnd_mail"

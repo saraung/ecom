@@ -451,23 +451,24 @@ accepted or that email is being delivered.
 ### 8.3 Workers and background jobs
 
 APScheduler runs **inside the application process**, and every uvicorn worker
-starts its own scheduler. To stop N workers from each scanning (and each calling
-the payment provider), both jobs run through a **PostgreSQL transaction-scoped
-advisory lock** (`_run_as_scheduler_leader` in `app/main.py`):
+starts its own scheduler. Both jobs are safe to run concurrently:
 
-- the first worker to acquire the lock for a tick runs the job;
-- every other worker skips that tick immediately;
-- the lock is released when the job's session commits/closes, so a crashed
-  leader never blocks the next tick;
-- SQLite (tests/local) bypasses the lock and runs in-process as before.
+- the email outbox claims each row with `FOR UPDATE SKIP LOCKED`, so no message
+  is sent twice by two workers;
+- order expiry locks the order row and rechecks its state, so cancelling is
+  idempotent.
 
-The job bodies are also individually idempotent (`FOR UPDATE SKIP LOCKED` for
-the email outbox, row locks for order expiry), so the lock is defence in depth,
-not the only protection.
+There is deliberately **no cluster-wide advisory lock** around these jobs. A
+transaction-scoped lock held across provider I/O can be left open when a
+serverless instance is frozen mid-send, which blocks every other worker
+indefinitely. Row-level locks provide the same safety without that failure mode.
 
-**Recommended:** any number of API workers is now safe. Keep the sweep cadence
-(`PENDING_ORDER_EXPIRY_JOB_MINUTES`) low enough that a skipped tick is harmless.
-Monitor job failures; readiness reports missing jobs in production.
+**Serverless caveat:** on Vercel the timer is not guaranteed to fire. Password
+reset mail is also attempted in-request as a fallback; everything else stays
+durable in `email_outbox` until a worker runs. For reliable background delivery,
+run the API on a long-lived host (Render/Railway/Fly) or trigger the outbox from
+an external cron. Keep `PENDING_ORDER_EXPIRY_JOB_MINUTES` low enough that a
+missed tick is harmless.
 
 ### 8.4 Signals and graceful shutdown
 

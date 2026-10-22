@@ -491,13 +491,14 @@ exceed the operator's own permissions.
 Both are skipped when `ENVIRONMENT=test` or the DB URL is SQLite.
 
 > **Deployment constraint:** APScheduler runs **in-process**, so every uvicorn
-> worker starts a scheduler. Each tick takes a PostgreSQL transaction-scoped
-> advisory lock (`pg_try_advisory_xact_lock`); only the first worker runs the
-> job and the rest skip it, so N workers no longer mean N scans or N provider
-> calls. The lock releases when the job's session closes, so a crashed leader
-> cannot wedge the schedule. See `deployment.md` §8.3. An external queue is
-> still the right choice if jobs need retries, priorities or independent
-> scaling.
+> worker starts a scheduler. The jobs are concurrency-safe by themselves: the
+> email outbox claims rows with `FOR UPDATE SKIP LOCKED`, and order expiry locks
+> the order row and rechecks state. There is no global advisory lock, because a
+> lock held across provider I/O can be left open by a frozen serverless
+> instance. On serverless hosts the timer is best-effort; password-reset mail
+> is attempted in-request, and other mail stays queued until a worker runs. See
+> `deployment.md` §8.3. An external queue is still the right choice if jobs need
+> retries, priorities or independent scaling.
 
 Email is transactional-queue based rather than fire-and-forget: the outbox row
 is committed with the business transaction, then delivered asynchronously with
@@ -558,11 +559,11 @@ loads it once at boot (`RegionGate`) before first paint settles.
 
 ## 13. Known Constraints
 
-1. **In-process scheduler** — APScheduler still lives inside the API process. A
-   PostgreSQL advisory lock elects one worker per tick, so jobs do not run N
-   times, but there is no external queue and a stuck job occupies a worker
-   thread. Move to Celery/RQ if jobs need retries, priorities or independent
-   scaling.
+1. **In-process scheduler** — APScheduler still lives inside the API process.
+   Row-level locks keep the jobs safe across workers, but there is no external
+   queue, and a serverless process may be frozen before the timer fires. Move
+   to Celery/RQ (or run on a long-lived host) if jobs need guaranteed execution,
+   retries, priorities or independent scaling.
 2. **Rate limiting defaults to per-process memory** — set
    `RATE_LIMIT_STORAGE_URI=redis://…` and `REQUIRE_SHARED_RATE_LIMIT=true` when
    running more than one API process. Chat throttles are still database-backed.

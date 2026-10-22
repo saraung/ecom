@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 import asyncio
 from pathlib import Path
 import importlib.util
+from unittest.mock import Mock
 
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
@@ -17,6 +18,7 @@ from app.core.security import decode_access_token, hash_password, create_access_
 from app.models.password_reset import PasswordResetToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
+from app.services.email_service import email_service
 from app.repositories import token as repo
 from app.schemas.token import RefreshRequest
 
@@ -137,6 +139,38 @@ def test_reset_token_is_hashed_single_use_and_invalidates_sessions(db):
     assert repo.get_valid_token(s, pair.refresh_token) is None
     with pytest.raises(HTTPException):
         get_current_user(s, pair.access_token)
+
+
+def test_password_reset_supersedes_queued_reset_mail(db):
+    s, user = db
+    tasks = BackgroundTasks()
+
+    auth.forgot_password(auth.ForgotPasswordRequest(email=user.email), s, tasks)
+    auth.forgot_password(auth.ForgotPasswordRequest(email=user.email), s, tasks)
+
+    from app.models.email_outbox import EmailOutbox
+
+    rows = s.exec(select(EmailOutbox).where(
+        EmailOutbox.event_key.like("password-reset:%")
+    )).all()
+    assert len(rows) == 1
+    assert rows[0].sent_at is None
+
+
+def test_password_reset_sends_inline_on_serverless(db, monkeypatch):
+    s, user = db
+    monkeypatch.setenv("VERCEL", "1")
+    send = Mock(return_value=True)
+    monkeypatch.setattr(email_service, "_send_email", send)
+
+    auth.forgot_password(auth.ForgotPasswordRequest(email=user.email), s, BackgroundTasks())
+
+    from app.models.email_outbox import EmailOutbox
+
+    assert send.call_count == 1
+    row = s.exec(select(EmailOutbox)).one()
+    assert row.sent_at is not None
+    assert row.attempts == 1
 
 
 def test_expired_refresh_rejected_with_sqlite_naive_timestamp(db):
